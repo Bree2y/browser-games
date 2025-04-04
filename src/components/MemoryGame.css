@@ -1,0 +1,77 @@
+.game-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.number-display {
+  font-size: 48px;
+  margin: 20px 0;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 5px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.game-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.number-input {
+  padding: 10px;
+  font-size: 16px;
+  margin: 10px;
+  width: 200px;
+}
+
+.score-board {
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 300px;
+  margin: 20px auto;
+}
+
+.number-button {
+  padding: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.number-button:hover {
+  background-color: #1976D2;
+}
+
+.number-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.sequence-display {
+  margin: 20px 0;
+  font-size: 20px;
+  min-height: 30px;
+} 

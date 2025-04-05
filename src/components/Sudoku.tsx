@@ -22,18 +22,25 @@ const Grid = styled.div`
   }
 `;
 
-const Cell = styled.input<{ isInitial: boolean; isSelected: boolean; isError: boolean }>`
+const Cell = styled.div<{ isInitial: boolean; isSelected: boolean; isError: boolean }>`
   width: 40px;
   height: 40px;
   border: none;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 20px;
   background-color: ${props => props.isSelected ? '#e3f2fd' : '#fff'};
   color: ${props => props.isInitial ? '#000' : '#2196f3'};
   ${props => props.isError && 'background-color: #ffebee;'}
+  cursor: ${props => props.isInitial ? 'default' : 'pointer'};
   
   &:nth-child(3n) {
     border-right: 2px solid #000;
+  }
+
+  &:nth-child(9n) {
+    border-right: none;
   }
   
   &:nth-child(n+19):nth-child(-n+27),
@@ -80,6 +87,27 @@ const Difficulty = styled.select`
   border-radius: 4px;
 `;
 
+const NumberButtons = styled.div`
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 5px;
+  margin-top: 20px;
+  max-width: 400px;
+  width: 100%;
+`;
+
+const NumberButton = styled(Button)<{ isUsedUp: boolean }>`
+  padding: 10px;
+  font-size: 18px;
+  opacity: ${props => props.isUsedUp ? 0.5 : 1};
+  background-color: ${props => props.isUsedUp ? '#bdbdbd' : '#2196f3'};
+
+  @media (max-width: 480px) {
+    padding: 8px;
+    font-size: 16px;
+  }
+`;
+
 const Sudoku: React.FC = () => {
   const [grid, setGrid] = useState<string[][]>(Array(9).fill(null).map(() => Array(9).fill('')));
   const [solution, setSolution] = useState<number[][]>([]);
@@ -89,6 +117,9 @@ const Sudoku: React.FC = () => {
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
   const [difficulty, setDifficulty] = useState<string>('easy');
   const [isError, setIsError] = useState<boolean>(false);
+  const [numberCounts, setNumberCounts] = useState<{ [key: string]: number }>(
+    Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => [n, 9]))
+  );
 
   const generateNewPuzzle = () => {
     const { puzzle, solution } = generateSudoku(difficulty);
@@ -100,21 +131,45 @@ const Sudoku: React.FC = () => {
     setInitialGrid(newInitialGrid);
     setSelectedCell(null);
     setIsError(false);
-  };
 
-  const handleCellChange = (row: number, col: number, value: string) => {
-    if (initialGrid[row][col]) return;
-    
-    if (value === '' || (value.length === 1 && /[1-9]/.test(value))) {
-      const newGrid = grid.map(r => [...r]);
-      newGrid[row][col] = value;
-      setGrid(newGrid);
-      setIsError(false);
-    }
+    // 초기 숫자 카운트 계산
+    const counts: { [key: string]: number } = Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => [n, 9]));
+    newGrid.forEach(row => {
+      row.forEach(cell => {
+        if (cell !== '') {
+          counts[cell]--;
+        }
+      });
+    });
+    setNumberCounts(counts);
   };
 
   const handleCellSelect = (row: number, col: number) => {
-    setSelectedCell([row, col]);
+    if (!initialGrid[row][col]) {
+      setSelectedCell([row, col]);
+    }
+  };
+
+  const handleNumberClick = (number: number) => {
+    if (!selectedCell || numberCounts[number] <= 0) return;
+    
+    const [row, col] = selectedCell;
+    if (initialGrid[row][col]) return;
+
+    const oldValue = grid[row][col];
+    const newGrid = grid.map(r => [...r]);
+    newGrid[row][col] = number.toString();
+    setGrid(newGrid);
+    
+    // 숫자 카운트 업데이트
+    const newCounts = { ...numberCounts };
+    if (oldValue !== '') {
+      newCounts[oldValue]++;
+    }
+    newCounts[number]--;
+    setNumberCounts(newCounts);
+    
+    setIsError(false);
   };
 
   const checkSolution = () => {
@@ -156,18 +211,29 @@ const Sudoku: React.FC = () => {
           row.map((cell, colIndex) => (
             <Cell
               key={`${rowIndex}-${colIndex}`}
-              type="text"
-              value={cell}
-              maxLength={1}
               isInitial={initialGrid[rowIndex][colIndex]}
               isSelected={selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex}
               isError={isError}
-              onChange={(e) => handleCellChange(rowIndex, colIndex, e.target.value)}
               onClick={() => handleCellSelect(rowIndex, colIndex)}
-            />
+            >
+              {cell}
+            </Cell>
           ))
         )}
       </Grid>
+      <NumberButtons>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(number => (
+          <NumberButton
+            key={number}
+            onClick={() => handleNumberClick(number)}
+            disabled={numberCounts[number] <= 0}
+            isUsedUp={numberCounts[number] <= 0}
+          >
+            {number}
+            <sup style={{ fontSize: '0.6em', marginLeft: '2px' }}>{numberCounts[number]}</sup>
+          </NumberButton>
+        ))}
+      </NumberButtons>
     </SudokuContainer>
   );
 };

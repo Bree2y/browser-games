@@ -1,8 +1,8 @@
 {
-  "name": "memory-number-game",
+  "name": "browser-games",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://[YOUR_GITHUB_USERNAME].github.io/memory-number-game",
+  "homepage": "https://bree2y.github.io/browser-games",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

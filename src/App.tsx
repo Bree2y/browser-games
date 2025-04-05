@@ -1,8 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import GameSelection from './components/GameSelection';
 import MemoryGame from './components/MemoryGame';
+import Sudoku from './components/Sudoku';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<GameSelection />} />
           <Route path="/game/memory-number" element={<MemoryGame />} />
+          <Route path="/game/sudoku" element={<Sudoku />} />
         </Routes>
       </div>
     </Router>

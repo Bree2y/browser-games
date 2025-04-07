@@ -37,13 +37,12 @@ const Cell = styled.div<{
   justify-content: center;
   font-size: 20px;
   background-color: ${props => {
-    if (props.isSelected) return '#e3f2fd';
-    if (props.isCorrect) return '#c8e6c9';
     if (props.isWrong) return '#ffcdd2';
+    if (props.isCorrect) return '#c8e6c9';
+    if (props.isSelected) return '#e3f2fd';
     return '#fff';
   }};
   color: ${props => props.isInitial ? '#000' : '#2196f3'};
-  ${props => props.isError && 'background-color: #ffebee;'}
   cursor: ${props => props.isInitial ? 'default' : 'pointer'};
   
   &:nth-child(3n) {
@@ -218,6 +217,10 @@ const Sudoku: React.FC = () => {
     const newCounts = { ...numberCounts };
     if (oldValue !== '') {
       newCounts[oldValue]++;
+      // 이전 값에 대한 상태 제거
+      const cellKey = `${row}-${col}`;
+      correctCells.delete(cellKey);
+      wrongCells.delete(cellKey);
     }
     newCounts[number]--;
     setNumberCounts(newCounts);
@@ -230,9 +233,13 @@ const Sudoku: React.FC = () => {
     if (number === solution[row][col]) {
       newCorrectCells.add(cellKey);
       newWrongCells.delete(cellKey);
+      setCorrectCells(newCorrectCells);
+      setWrongCells(newWrongCells);
     } else {
       newWrongCells.add(cellKey);
       newCorrectCells.delete(cellKey);
+      setCorrectCells(newCorrectCells);
+      setWrongCells(newWrongCells);
       setAttemptsLeft(prev => {
         const newAttempts = prev - 1;
         if (newAttempts <= 0) {
@@ -241,10 +248,6 @@ const Sudoku: React.FC = () => {
         return newAttempts;
       });
     }
-
-    setCorrectCells(newCorrectCells);
-    setWrongCells(newWrongCells);
-    setIsError(false);
   };
 
   const checkSolution = () => {
@@ -287,19 +290,22 @@ const Sudoku: React.FC = () => {
       </GameInfo>
       <Grid>
         {grid.map((row, rowIndex) =>
-          row.map((cell, colIndex) => (
-            <Cell
-              key={`${rowIndex}-${colIndex}`}
-              isInitial={initialGrid[rowIndex][colIndex]}
-              isSelected={selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex}
-              isError={isError}
-              isCorrect={correctCells.has(`${rowIndex}-${colIndex}`)}
-              isWrong={wrongCells.has(`${rowIndex}-${colIndex}`)}
-              onClick={() => handleCellSelect(rowIndex, colIndex)}
-            >
-              {cell}
-            </Cell>
-          ))
+          row.map((cell, colIndex) => {
+            const cellKey = `${rowIndex}-${colIndex}`;
+            return (
+              <Cell
+                key={cellKey}
+                isInitial={initialGrid[rowIndex][colIndex]}
+                isSelected={selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex}
+                isError={isError}
+                isCorrect={correctCells.has(cellKey)}
+                isWrong={wrongCells.has(cellKey)}
+                onClick={() => handleCellSelect(rowIndex, colIndex)}
+              >
+                {cell}
+              </Cell>
+            );
+          })
         )}
       </Grid>
       <NumberButtons>

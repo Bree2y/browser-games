@@ -22,7 +22,13 @@ const Grid = styled.div`
   }
 `;
 
-const Cell = styled.div<{ isInitial: boolean; isSelected: boolean; isError: boolean }>`
+const Cell = styled.div<{ 
+  isInitial: boolean; 
+  isSelected: boolean; 
+  isError: boolean;
+  isCorrect: boolean;
+  isWrong: boolean;
+}>`
   width: 40px;
   height: 40px;
   border: none;
@@ -30,7 +36,12 @@ const Cell = styled.div<{ isInitial: boolean; isSelected: boolean; isError: bool
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  background-color: ${props => props.isSelected ? '#e3f2fd' : '#fff'};
+  background-color: ${props => {
+    if (props.isSelected) return '#e3f2fd';
+    if (props.isCorrect) return '#c8e6c9';
+    if (props.isWrong) return '#ffcdd2';
+    return '#fff';
+  }};
   color: ${props => props.isInitial ? '#000' : '#2196f3'};
   ${props => props.isError && 'background-color: #ffebee;'}
   cursor: ${props => props.isInitial ? 'default' : 'pointer'};
@@ -108,6 +119,40 @@ const NumberButton = styled(Button)<{ isUsedUp: boolean }>`
   }
 `;
 
+const GameInfo = styled.div`
+  margin: 20px 0;
+  font-size: 18px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+`;
+
+const AttemptsLeft = styled.span<{ isLow: boolean }>`
+  color: ${props => props.isLow ? '#f44336' : '#2196f3'};
+  font-weight: bold;
+`;
+
+const GameOverModal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ModalContent = styled.div`
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+`;
+
 const Sudoku: React.FC = () => {
   const [grid, setGrid] = useState<string[][]>(Array(9).fill(null).map(() => Array(9).fill('')));
   const [solution, setSolution] = useState<number[][]>([]);
@@ -120,6 +165,10 @@ const Sudoku: React.FC = () => {
   const [numberCounts, setNumberCounts] = useState<{ [key: string]: number }>(
     Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => [n, 9]))
   );
+  const [attemptsLeft, setAttemptsLeft] = useState<number>(5);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [correctCells, setCorrectCells] = useState<Set<string>>(new Set());
+  const [wrongCells, setWrongCells] = useState<Set<string>>(new Set());
 
   const generateNewPuzzle = () => {
     const { puzzle, solution } = generateSudoku(difficulty);
@@ -131,6 +180,10 @@ const Sudoku: React.FC = () => {
     setInitialGrid(newInitialGrid);
     setSelectedCell(null);
     setIsError(false);
+    setAttemptsLeft(5);
+    setGameOver(false);
+    setCorrectCells(new Set());
+    setWrongCells(new Set());
 
     // 초기 숫자 카운트 계산
     const counts: { [key: string]: number } = Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => [n, 9]));
@@ -145,13 +198,13 @@ const Sudoku: React.FC = () => {
   };
 
   const handleCellSelect = (row: number, col: number) => {
-    if (!initialGrid[row][col]) {
+    if (!initialGrid[row][col] && !gameOver) {
       setSelectedCell([row, col]);
     }
   };
 
   const handleNumberClick = (number: number) => {
-    if (!selectedCell || numberCounts[number] <= 0) return;
+    if (!selectedCell || numberCounts[number] <= 0 || gameOver) return;
     
     const [row, col] = selectedCell;
     if (initialGrid[row][col]) return;
@@ -169,6 +222,28 @@ const Sudoku: React.FC = () => {
     newCounts[number]--;
     setNumberCounts(newCounts);
     
+    // 입력한 숫자가 정답인지 확인
+    const cellKey = `${row}-${col}`;
+    const newCorrectCells = new Set(correctCells);
+    const newWrongCells = new Set(wrongCells);
+
+    if (number === solution[row][col]) {
+      newCorrectCells.add(cellKey);
+      newWrongCells.delete(cellKey);
+    } else {
+      newWrongCells.add(cellKey);
+      newCorrectCells.delete(cellKey);
+      setAttemptsLeft(prev => {
+        const newAttempts = prev - 1;
+        if (newAttempts <= 0) {
+          setGameOver(true);
+        }
+        return newAttempts;
+      });
+    }
+
+    setCorrectCells(newCorrectCells);
+    setWrongCells(newWrongCells);
     setIsError(false);
   };
 
@@ -180,6 +255,7 @@ const Sudoku: React.FC = () => {
       const isFilled = grid.every(row => row.every(cell => cell !== ''));
       if (isFilled) {
         alert('축하합니다! 스도쿠를 완성했습니다!');
+        setGameOver(true);
       } else {
         alert('지금까지 입력한 숫자들이 올바릅니다. 계속 진행하세요!');
       }
@@ -206,6 +282,9 @@ const Sudoku: React.FC = () => {
         <Button onClick={generateNewPuzzle}>새 게임</Button>
         <Button onClick={checkSolution}>확인</Button>
       </Controls>
+      <GameInfo>
+        남은 기회: <AttemptsLeft isLow={attemptsLeft <= 2}>{attemptsLeft}</AttemptsLeft>
+      </GameInfo>
       <Grid>
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
@@ -214,6 +293,8 @@ const Sudoku: React.FC = () => {
               isInitial={initialGrid[rowIndex][colIndex]}
               isSelected={selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex}
               isError={isError}
+              isCorrect={correctCells.has(`${rowIndex}-${colIndex}`)}
+              isWrong={wrongCells.has(`${rowIndex}-${colIndex}`)}
               onClick={() => handleCellSelect(rowIndex, colIndex)}
             >
               {cell}
@@ -226,7 +307,7 @@ const Sudoku: React.FC = () => {
           <NumberButton
             key={number}
             onClick={() => handleNumberClick(number)}
-            disabled={numberCounts[number] <= 0}
+            disabled={numberCounts[number] <= 0 || gameOver}
             isUsedUp={numberCounts[number] <= 0}
           >
             {number}
@@ -234,6 +315,19 @@ const Sudoku: React.FC = () => {
           </NumberButton>
         ))}
       </NumberButtons>
+      {gameOver && (
+        <GameOverModal>
+          <ModalContent>
+            <h2>게임 종료</h2>
+            <p>
+              {attemptsLeft <= 0 
+                ? '기회를 모두 소진했습니다.' 
+                : '축하합니다! 스도쿠를 완성했습니다!'}
+            </p>
+            <Button onClick={generateNewPuzzle}>새 게임 시작</Button>
+          </ModalContent>
+        </GameOverModal>
+      )}
     </SudokuContainer>
   );
 };

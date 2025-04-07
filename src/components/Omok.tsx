@@ -2,10 +2,20 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+let openai: OpenAI;
+
+// OpenAI 클라이언트 초기화 함수
+const initializeOpenAI = () => {
+  openai = new OpenAI({
+    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true
+  });
+};
+
+// 컴포넌트가 마운트될 때 OpenAI 클라이언트 초기화
+useEffect(() => {
+  initializeOpenAI();
+}, []);
 
 const Container = styled.div`
   display: flex;

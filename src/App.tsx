@@ -4,6 +4,7 @@ import './App.css';
 import GameSelection from './components/GameSelection';
 import MemoryGame from './components/MemoryGame';
 import Sudoku from './components/Sudoku';
+import Omok from './components/Omok';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<GameSelection />} />
           <Route path="/game/memory-number" element={<MemoryGame />} />
           <Route path="/game/sudoku" element={<Sudoku />} />
+          <Route path="/game/omok" element={<Omok />} />
         </Routes>
       </div>
     </Router>

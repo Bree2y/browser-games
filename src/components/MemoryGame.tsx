@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './MemoryGame.css';
+import { useNavigate } from 'react-router-dom';
 
 interface GameState {
   sequence: number[];
@@ -20,6 +21,8 @@ const MemoryGame: React.FC = () => {
     score: 0,
     gameOver: false,
   });
+
+  const navigate = useNavigate();
 
   const generateSequence = (level: number) => {
     return Array.from({ length: level + 2 }, () => Math.floor(Math.random() * 9) + 1);
@@ -103,8 +106,15 @@ const MemoryGame: React.FC = () => {
   return (
     <div className="game-container">
       <h1>숫자 기억 게임</h1>
-      <div className="score-board">
-        레벨: {gameState.currentLevel} | 점수: {gameState.score}
+      <div className="game-info">
+        <div className="buttons">
+          <button onClick={startNewGame}>새 게임</button>
+          <button onClick={() => navigate('/')}>홈으로</button>
+        </div>
+        <div className="status">
+          <div className="score">점수: {gameState.score}</div>
+          <div className="level">레벨: {gameState.currentLevel}</div>
+        </div>
       </div>
       
       <div className="number-display">

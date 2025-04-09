@@ -1,24 +1,26 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import GameSelection from './components/GameSelection';
 import MemoryGame from './components/MemoryGame';
 import Sudoku from './components/Sudoku';
 import Omok from './components/Omok';
+import AppleGame from './components/AppleGame';
 
-function App() {
+const App: React.FC = () => {
   return (
-    <Router>
+    <Router basename="/browser-games">
       <div className="App">
         <Routes>
           <Route path="/" element={<GameSelection />} />
-          <Route path="/game/memory-number" element={<MemoryGame />} />
-          <Route path="/game/sudoku" element={<Sudoku />} />
-          <Route path="/game/omok" element={<Omok />} />
+          <Route path="/memory" element={<MemoryGame />} />
+          <Route path="/sudoku" element={<Sudoku />} />
+          <Route path="/omok" element={<Omok />} />
+          <Route path="/apple" element={<AppleGame />} />
         </Routes>
       </div>
     </Router>
   );
-}
+};
 
 export default App;

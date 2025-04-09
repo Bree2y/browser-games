@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { generateSudoku, validateBoard } from '../utils/sudokuGenerator';
+import { useNavigate } from 'react-router-dom';
 
 const SudokuContainer = styled.div`
   display: flex;
@@ -153,6 +154,7 @@ const ModalContent = styled.div`
 `;
 
 const Sudoku: React.FC = () => {
+  const navigate = useNavigate();
   const [grid, setGrid] = useState<string[][]>(Array(9).fill(null).map(() => Array(9).fill('')));
   const [solution, setSolution] = useState<number[][]>([]);
   const [initialGrid, setInitialGrid] = useState<boolean[][]>(
@@ -283,6 +285,7 @@ const Sudoku: React.FC = () => {
           <option value="hard">어려움</option>
         </Difficulty>
         <Button onClick={generateNewPuzzle}>새 게임</Button>
+        <Button onClick={() => navigate('/')}>홈으로</Button>
         <Button onClick={checkSolution}>확인</Button>
       </Controls>
       <GameInfo>

@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/browser-games/static/css/main.9d0931e1.css",
-    "main.js": "/browser-games/static/js/main.9c2e252e.js",
+    "main.js": "/browser-games/static/js/main.b638e164.js",
     "static/js/453.1e3a3853.chunk.js": "/browser-games/static/js/453.1e3a3853.chunk.js",
     "index.html": "/browser-games/index.html",
     "main.9d0931e1.css.map": "/browser-games/static/css/main.9d0931e1.css.map",
-    "main.9c2e252e.js.map": "/browser-games/static/js/main.9c2e252e.js.map",
+    "main.b638e164.js.map": "/browser-games/static/js/main.b638e164.js.map",
     "453.1e3a3853.chunk.js.map": "/browser-games/static/js/453.1e3a3853.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.9d0931e1.css",
-    "static/js/main.9c2e252e.js"
+    "static/js/main.b638e164.js"
   ]
 }

@@ -8,7 +8,7 @@ let openai: OpenAI;
 // OpenAI 클라이언트 초기화 함수
 const initializeOpenAI = () => {
   openai = new OpenAI({
-    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    apiKey: '__OPENAI_API_KEY__',
     dangerouslyAllowBrowser: true
   });
 };
